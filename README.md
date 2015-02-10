@@ -17,6 +17,7 @@
 2. [Настройка окружения](#Настройка-окружения)
   1. [Gatsby CLI](#Gatsby-CLI)
     1. [Базовые команды](#Базовые-команды)
+    2. [Создание сайта и Gatsby Starters](#Создание-сайта-и-Gatsby-Starters)
 
 
 ## Что такое Gatsby.js
@@ -97,3 +98,39 @@ gatsby --version
 Встроенная в браузер IDE _GraphiQL_ для просмотра и изучения данных и схем GraphQL.
 
 > http://localhost:8000/___graphql
+
+#### Создание сайта и Gatsby Starters
+
+Для создания сайта используется команда `gatsby new`, запускающая интерактивную подсказку после заполнения которой, Gatsby использует ответы для автоматического создания нового сайта на Gatsby.
+
+```console
+gatsby new my-new-site
+```
+
+или
+
+```console
+npx gatsby new my-new-site
+```
+
+_Перейти в директорию созданного сайта_
+
+```bash
+cd my-new-site
+```
+
+Для более быстрого создания сайта и запуска разработки существуют заранее разработанные и поддерживаемые сообществом готовые шаблоны сайтов Gatsby, которые называются _стартерами_ (Gatsby Starters).
+
+Установка сайта с клонированием стартера:
+
+```console
+gatsby new [ПАПКА_САЙТА] [ССЫЛКА_НА_GIT_РЕПОЗИТОРИЙ_СТАРТЕРА]
+```
+
+Например, создадим сайт в папке `blog` со стартером `gatsby-starter-hello-world`:
+
+```console
+gatsby new blog https://github.com/gatsbyjs/gatsby-starter-hello-world
+```
+
+Подробнее о том как использовать стартеры в документации [Gatsby Starters](https://www.gatsbyjs.com/docs/starters/). Весь список стартеров доступен на [странице библиотеки Gatsby стартеров](https://www.gatsbyjs.com/starters/).
