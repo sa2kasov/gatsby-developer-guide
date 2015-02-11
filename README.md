@@ -20,6 +20,7 @@
     2. [Создание сайта и Gatsby Starters](#Создание-сайта-и-Gatsby-Starters)
   2. [Шпаргалка по основным командам Gatsby](#Шпаргалка-по основным-командам-Gatsby)
   3. [Настройка GitHub репозитория для Gatsby сайта](#Настройка-GitHub-репозитория-для-Gatsby-сайта)
+3. [Структура Gatsby сайта](#Структура-Gatsby-сайта)
 
 
 ## Что такое Gatsby.js
@@ -150,4 +151,25 @@ gatsby new blog https://github.com/gatsbyjs/gatsby-starter-hello-world
 git remote add origin https://github.com/GITHUB_USERNAME/REPO_NAME.git
 git branch -M master
 git push -u origin master
+```
+
+## Структура Gatsby сайта
+
+Обычная структура страниц в Gatsby выглядит следующим образом.
+
+```text
+/
+|-- /.cache
+|-- /plugins
+|-- /public
+|-- /src
+    |-- /api
+    |-- /pages
+    |-- /templates
+    |-- html.js
+|-- /static
+|-- gatsby-config.js
+|-- gatsby-node.js
+|-- gatsby-ssr.js
+|-- gatsby-browser.js
 ```
