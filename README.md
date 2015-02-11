@@ -18,6 +18,8 @@
   1. [Gatsby CLI](#Gatsby-CLI)
     1. [Базовые команды](#Базовые-команды)
     2. [Создание сайта и Gatsby Starters](#Создание-сайта-и-Gatsby-Starters)
+  2. [Шпаргалка по основным командам Gatsby](#Шпаргалка-по основным-командам-Gatsby)
+  3. [Настройка GitHub репозитория для Gatsby сайта](#Настройка-GitHub-репозитория-для-Gatsby-сайта)
 
 
 ## Что такое Gatsby.js
@@ -134,3 +136,18 @@ gatsby new blog https://github.com/gatsbyjs/gatsby-starter-hello-world
 ```
 
 Подробнее о том как использовать стартеры в документации [Gatsby Starters](https://www.gatsbyjs.com/docs/starters/). Весь список стартеров доступен на [странице библиотеки Gatsby стартеров](https://www.gatsbyjs.com/starters/).
+
+### Шпаргалка по основным командам Gatsby
+
+![Gatsby Cheat Sheet Page 1](https://www.gatsbyjs.com/cheat-sheet_page_1.png)
+![Gatsby Cheat Sheet Page 2](https://www.gatsbyjs.com/cheat-sheet_page_2.png)
+
+### Настройка GitHub репозитория для Gatsby сайта
+
+Многие платформы работающие с Gatsby подгружают файлы сайта с публичных репозиториев кода. На примере GitHub пример подключения удалённого репозитория:
+
+```console
+git remote add origin https://github.com/GITHUB_USERNAME/REPO_NAME.git
+git branch -M master
+git push -u origin master
+```
