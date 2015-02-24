@@ -32,6 +32,7 @@
   2. [Добавление поддержки Sass/SCSS](#Добавление-поддержки-Sass/SCSS)
 9. [Работа с GraphQL](#Работа-с-GraphQL)
   1. [Использование инструмента GraphiQL](#Использование-инструмента-GraphiQL)
+  2. [Подключение GraphQL Playground](#Подключение-GraphQL-Playground)
 
 
 ## Что такое Gatsby.js
@@ -556,3 +557,29 @@ _Ответ_
   }
 }
 ```
+
+### Подключение GraphQL Playground
+
+_GraphQL Playground_ – альтернативный интерфейс IDE для создания, редактирования и тестирования GraphQL-запросов. Чтобы переключить стандартную IDE _GraphiQL_ на _GraphQL Playground_, нужно назначить специальное значение для переменной окружения. Создадим в корне проекта файл `.env.development` в котором укажем следующее значение в формате `KEY=value`:
+
+```ini
+GATSBY_GRAPHQL_IDE=playground
+```
+
+Для чтения и выполнения команд из `.env` файла установим программу `env-cmd`.
+
+```console
+npm install env-cmd --save-dev
+```
+
+Для загрузки файла с переменными окружения непосредственно перед запуском сервера разработки изменим скрипт `develop` в `package.json`.
+
+```json
+{
+  "scripts": {
+    "develop": "env-cmd -f .env.development gatsby develop"
+  }
+}
+```
+
+После перезапуска сервера `npm run develop` интерфейс IDE изменится после обновления страницы `http://localhost:8000/___graphql`.
