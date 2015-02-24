@@ -33,6 +33,7 @@
 9. [Работа с GraphQL](#Работа-с-GraphQL)
   1. [Использование инструмента GraphiQL](#Использование-инструмента-GraphiQL)
   2. [Подключение GraphQL Playground](#Подключение-GraphQL-Playground)
+  3. [Запросы в базовый компонент-конструктор. Использование useStaticQuery](#Запросы-в-базовый-компонент-конструктор.-Использование-useStaticQuery)
 
 
 ## Что такое Gatsby.js
@@ -583,3 +584,51 @@ npm install env-cmd --save-dev
 ```
 
 После перезапуска сервера `npm run develop` интерфейс IDE изменится после обновления страницы `http://localhost:8000/___graphql`.
+
+### Запросы в базовый компонент-конструктор. Использование useStaticQuery
+
+Базовые компоненты-конструкторы (building-block components) используются для создания более сложных компонентов и интерфейсов страниц. Запрос данных для такого компонента осуществляется через предопределённую функцию-хук `useStaticQuery` куда передаётся теговый шаблон `graphql` со строкой запроса GraphQL.
+
+`/components/header.js`
+
+```js
+import React from 'react'
+import { useStaticQuery, graphql } from 'gatsby'
+
+const Header = () => {
+  const data = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          title
+        }
+      }
+    }
+  `)
+
+  return (
+    <header>
+      <h1>{data.site.siteMetadata.title}</h1>
+    </header>
+  )
+}
+
+export default Header
+```
+
+`useStaticQuery` можно вызывать один раз для каждого файла. Для выборки данных из нескольких полей следует объединить их в один запрос.
+
+```js
+const data = useStaticQuery(graphql`
+  query {
+    site {
+      siteMetadata {
+        title
+      }
+    }
+    siteBuildMetadata {
+      buildTime
+    }
+  }
+`)
+```
