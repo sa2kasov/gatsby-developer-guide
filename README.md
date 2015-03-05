@@ -39,6 +39,7 @@
 10. [Создание страниц сайта](#Создание-страниц-сайта)
   1. [Генерация ссылок на публикации. API onCreateNode](#Генерация-ссылок-на-публикации.-API-onCreateNode)
   2. [Генерация новой страницы для каждой публикации. API createPages](#Генерация-новой-страницы-для-каждой-публикации.-API-createPages)
+  3. [Трансформация данных. Плагин gatsby-transformer-remark](#Трансформация-данных.-Плагин-gatsby-transformer-remark)
 
 
 ## Что такое Gatsby.js
@@ -774,3 +775,61 @@ module.exports.createPages = async ({  graphql, actions }) => {
 ```
 
 Переданные данные отобразятся в шаблоне который мы создадим далее. Доступ к этим дополнительным данным будет осуществлён по запросу из страницы публикации.
+
+### Трансформация данных. Плагин gatsby-transformer-remark
+
+Плагин `gatsby-transformer-remark` используется для преобразования Markdown-файлов в структурированные данные, которые затем могут быть использованы для динамического построения страниц в Gatsby. Плагин не требует дополнительных настроек конфигурации в `gatsby-config.js`.
+
+После установки и перезапуске сборки проекта в слое данных GraphQL появятся запросы `MarkdownRemark` (для отдельного файла) и `allMarkdownRemark` (дя списка файлов). Готовая страница со всеми необходимыми запросами может выглядеть так:
+
+```js
+import React from 'react'
+import { Link, graphql, useStaticQuery } from 'gatsby'
+
+import Layout from '../components/layout'
+import * as styles from './blog.module.scss'
+
+const BlogPage = () => {
+  const data = useStaticQuery(graphql`
+    query {
+      allMarkdownRemark {
+        edges {
+          node {
+            frontmatter {
+              title
+              date
+            }
+            fields {
+              slug
+            }
+          }
+        }
+      }
+    }
+  `)
+
+  const li = data.allMarkdownRemark.edges.map((item, k) => {
+    return (
+      <li className={styles.post} key={k}>
+        <h2>
+          <Link to={item.node.fields.slug}>{item.node.frontmatter.title}</Link>
+        </h2>
+        <p>{item.node.frontmatter.date}</p>
+      </li>
+    )
+  })
+
+  return (
+    <Layout>
+      <h1>Blog</h1>
+
+      <ol className={styles.posts}>
+        {li}
+      </ol>
+
+    </Layout>
+  )
+}
+
+export default BlogPage
+```
