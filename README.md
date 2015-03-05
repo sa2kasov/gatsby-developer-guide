@@ -38,6 +38,7 @@
   5. [Составление запроса и выборка данных. Плагин gatsby-source-filesystem](#Составление-запроса-и-выборка-данных.-Плагин-gatsby-source-filesystem)
 10. [Создание страниц сайта](#Создание-страниц-сайта)
   1. [Генерация ссылок на публикации. API onCreateNode](#Генерация-ссылок-на-публикации.-API-onCreateNode)
+  2. [Генерация новой страницы для каждой публикации. API createPages](#Генерация-новой-страницы-для-каждой-публикации.-API-createPages)
 
 
 ## Что такое Gatsby.js
@@ -732,3 +733,44 @@ module.exports.onCreateNode = ({ node, actions }) => {
 В скрипте выше мы фильтруем только те узлы, тип которых `MarkdownRemark`, затем через встроенный модуль Node.js `path` разбираем значение поля `fileAbsolutePath`, содержащий абсолютный путь к файлу поста и получаем через `path.basename()` только имя, обрезав расширение `.md`.
 
 Благодаря `createNodeField` _slug_ для нашей публикации будет доступен в слое данных GraphQL.
+
+### Генерация новой страницы для каждой публикации. API createPages
+
+Для этой задачи нам понадобится воспользоваться Gatsby Node API `createPages`, который предоставляет всё необходимое для динамической генерации новых страниц сайта.
+
+`gatsby-node.js`
+
+```js
+module.exports.createPages = async ({  graphql, actions }) => {
+  const { createPage } = actions
+  // Получение пути к шаблону
+  const blogTemplate = path.resolve('./src/templates/blog.js')
+  // Запрос полей slug публикаций
+  const response = await graphql(`
+    query {
+      allMarkdownRemark {
+        edges {
+          node {
+            fields {
+              slug
+            }
+          }
+        }
+      }
+    }
+  `)
+
+  // Добавление данных в контекст при создании каждой новой страницы
+  response.data.allMarkdownRemark.edges.forEach((edge) => {
+    createPage({
+      component: blogTemplate,
+      path: `/blog/${edge.node.fields.slug}`,
+      context: {
+        slug: edge.node.fields.slug
+      }
+    })
+  })
+}
+```
+
+Переданные данные отобразятся в шаблоне который мы создадим далее. Доступ к этим дополнительным данным будет осуществлён по запросу из страницы публикации.
