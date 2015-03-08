@@ -41,6 +41,7 @@
   2. [Генерация новой страницы для каждой публикации. API createPages](#Генерация-новой-страницы-для-каждой-публикации.-API-createPages)
   3. [Трансформация данных. Плагин gatsby-transformer-remark](#Трансформация-данных.-Плагин-gatsby-transformer-remark)
   4. [Создание шаблона страницы публикации](#Создание-шаблона-страницы-публикации)
+  5. [Добавление изображений к постам](#Добавление-изображений-к-постам)
 
 
 ## Что такое Gatsby.js
@@ -886,3 +887,79 @@ export default Blog
 ```
 
 Далее, мы экспортируем GraphQL-запрос, чтобы получить доступ к его результатам в свойстве компонента шаблона `Blog`. Этот компонент отобразит нам готовую страницу публикации.
+
+### Добавление изображений к постам
+
+Для добавления возможности использования изображений в наших постах понадобиться установить и настроить три новых Gatsby плагинов.
+
+Сохраним перед этим необходимые изображения в той же папке, где и будут находиться наши файлы постов, например, в папке `/src/posts/`. Подключим изображения в тексте публикации.
+
+```markdown
+---
+title: "My 1st post"
+date: 2025-01-15
+---
+
+Welcome to the first posts of this blog.
+
+![A Cow on the Background of Mountains](./cow.jpg)
+
+## Topics Covered
+
+1. Components
+2. GraphQL
+3. Images
+4. Plugins, Themes, & Starters
+5. Data Fetching
+```
+
+По умолчанию Gatsby не знает откуда вы пытаетесь извлечь файлы картинок. Для этого понадобиться установить и настроить плагин, который бы смог обрабатывать Markdown-синтаксис вставки изображений в наших постах.
+
+* `gatsby-plugin-sharp` – этот плагин позволяет обрабатывать изображения на базе библиотеки Sharp. Как правило, не используется напрямую, а выступает вспомогательным плагином для других плагинов;
+
+* `gatsby-remark-images` – позволяет обрабатывать Markdown-синтаксис, где были вставлены изображения;
+
+* `gatsby-remark-relative-images` – преобразует источники (src) изображений в `markdown/html/frontmatter` так, чтобы они были относительными к родительскому каталогу узла. Это поможет `gatsby-remark-images` находить изображения вне папки узла.
+
+Окончательные настройки плагинов для картинок в `gatsby-config.js` могут выглядеть так:
+
+```js
+module.exports = {
+  siteMetadata: {
+    title: 'The Great Gatsby Site',
+    description: 'My very first Gatsby site',
+    author: 'Me',
+  },
+  plugins: [
+    'gatsby-plugin-image',
+    'gatsby-plugin-sass',
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'src',
+        path: `${__dirname}/src/`
+      }
+    },
+    'gatsby-plugin-sharp',
+    {
+      resolve: 'gatsby-transformer-remark',
+      options: {
+        plugins: [
+          'gatsby-remark-relative-images',
+          {
+            resolve: 'gatsby-remark-images',
+            options: {
+              maxWidth: 750,
+              linkImagesToOriginal: false
+            }
+          }
+        ]
+      }
+    }
+  ],
+}
+```
+
+Параметр `maxWidth` плагина `gatsby-remark-relative-images` отвечает за максимальную ширину контейнера, в котором будет помещено изображение;
+
+`linkImagesToOriginal` добавит ссылку на исходное изображение, когда по клику отобразится полноразмерная картинка.
