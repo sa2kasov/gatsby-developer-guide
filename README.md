@@ -40,6 +40,7 @@
   1. [Генерация ссылок на публикации. API onCreateNode](#Генерация-ссылок-на-публикации.-API-onCreateNode)
   2. [Генерация новой страницы для каждой публикации. API createPages](#Генерация-новой-страницы-для-каждой-публикации.-API-createPages)
   3. [Трансформация данных. Плагин gatsby-transformer-remark](#Трансформация-данных.-Плагин-gatsby-transformer-remark)
+  4. [Создание шаблона страницы публикации](#Создание-шаблона-страницы-публикации)
 
 
 ## Что такое Gatsby.js
@@ -833,3 +834,55 @@ const BlogPage = () => {
 
 export default BlogPage
 ```
+
+### Создание шаблона страницы публикации
+
+Создадим отдельный шаблон для будущих страниц, а чтобы компонент шаблона не путать с другими стандартными компонентами, заведём его в папке `/src/templates/`.
+
+Поскольку мы запрашиваем данные поста ориентируясь по его _slug_, мы заводим переменную запроса (Query Variable), которая указывается сразу после ключевого слова `query`.
+
+```graphql
+query ($slug: String!) {
+  ...
+}
+```
+
+Gatsby сам подставит значение _slug_ в качестве аргумента в GraphQL-запросе `( fields: { slug: { eq: $slug } })`.
+
+`/src/templates/blog.js`
+
+```js
+import React from 'react'
+import { graphql } from 'gatsby'
+
+import Layout from '../components/layout'
+
+export const query = graphql`
+  query ($slug: String!) {
+    markdownRemark ( fields: { slug: { eq: $slug } }) {
+      frontmatter {
+        title
+        date
+      }
+      html
+      fields {
+        slug
+      }
+    }
+  }
+`
+
+const Blog = ({ data }) => {
+  return (
+    <Layout>
+      <h1>{data.markdownRemark.frontmatter.title}</h1>
+      <p>{data.markdownRemark.frontmatter.date}</p>
+      <div dangerouslySetInnerHTML={{ __html: data.markdownRemark.html }}></div>
+    </Layout>
+  )
+}
+
+export default Blog
+```
+
+Далее, мы экспортируем GraphQL-запрос, чтобы получить доступ к его результатам в свойстве компонента шаблона `Blog`. Этот компонент отобразит нам готовую страницу публикации.
