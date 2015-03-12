@@ -43,6 +43,7 @@
   4. [Создание шаблона страницы публикации](#Создание-шаблона-страницы-публикации)
   5. [Добавление изображений к постам](#Добавление-изображений-к-постам)
 11. [Gatsby + Contentful](#Gatsby-+-Contentful)
+  1. [Установка и настройка окружения. Плагин gatsby-source-contentful](#Установка-и-настройка-окружения.-Плагин-gatsby-source-contentful)
 
 
 ## Что такое Gatsby.js
@@ -977,4 +978,35 @@ _Contentful_ – это облачная, безголовая (headless) сис
 * Content – список экземпляров этого контента;
 * Media – медиафайлы.
 
-После оформления модели для публикаций, а также добавления самих записей публикаций, всё что остаётся сделать – получить доступ к этим данным через Gatsby GraphQL API. 
+После оформления модели для публикаций, а также добавления самих записей публикаций, всё что остаётся сделать – получить доступ к этим данным через Gatsby GraphQL API.
+
+### Установка и настройка окружения. Плагин gatsby-source-contentful
+
+Плагин `gatsby-source-contentful` позволяет Contentful стать источником данных для Gatsby проекта.
+
+**Установка плагина**
+
+```shell
+npm install gatsby-source-contentful gatsby-plugin-image
+```
+
+**Настройка плагина**
+
+Всё, что необходимо сделать это указать в конфигурационном файле `gatsby-config.js` такие поля как `spaceId` и `accessToken`, который предоставляет Contentful, если в интерфейсе программы пройти в `Settings` => `API keys`.
+
+Воспользуемся переменными окружения, чтобы скрыть чувствительные данные из исходного кода. В корне проекта в файле `*.env` создадим [переменные окружения](https://www.gatsbyjs.com/docs/how-to/local-development/environment-variables/) для описанных выше полей с произвольным названием, чтобы затем указать их в конфигурационном файле.
+
+```js
+module.exports = {
+  plugins: [
+    {
+      resolve: `gatsby-source-contentful`,
+      options: {
+        spaceId: process.env.CONTENTFUL_SPACE_ID,
+        accessToken: process.env.CONTENTFUL_ACCESS_TOKEN
+      },
+    },
+    `gatsby-plugin-image`,
+  ],
+}
+```
