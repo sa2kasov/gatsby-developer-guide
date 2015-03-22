@@ -45,6 +45,7 @@
 11. [Gatsby + Contentful](#Gatsby-+-Contentful)
   1. [Установка и настройка окружения. Плагин gatsby-source-contentful](#Установка-и-настройка-окружения.-Плагин-gatsby-source-contentful)
   2. [Запрос данных из источника Contentful](#Запрос-данных-из-источника-Contentful)
+  3. [Вывод списка постов. Запрос allContentfulBlogPost](#Вывод-списка-постов.-Запрос-allContentfulBlogPost)
 
 
 ## Что такое Gatsby.js
@@ -1035,4 +1036,79 @@ query {
     }
   }
 }
+```
+
+### Вывод списка постов. Запрос allContentfulBlogPost
+
+Чтобы вывести списком заголовки всех публикаций в Contentful воспользуемся запросом `allContentfulBlogPost`. В IDE GraphiQL выберем поля `title`, `slug` и `publishedDate`. Последний отвечает за дату публикации, который мы можем представить в любом формате. Аргумент `formatString` позволяет форматировать вывод даты согласно шаблону библиотеки [Moment.js](https://momentjs.com/docs/#/displaying/).
+
+Сами посты отсортируем `sort` по дате публикации `publishedDate` от поздних к ранним `DESC`.
+
+```graphql
+query {
+  allContentfulBlogPost(sort: {publishedDate: DESC}) {
+    edges {
+      node {
+        publishedDate(formatString: "MMMM Do, YYYY")
+        slug
+        title
+      }
+    }
+  }
+}
+```
+
+Теперь, когда у нас готов запрос, выведем этот список постов на странице `/src/pages/blog.js`. Готовый код страницы может выглядеть так:
+
+```js
+import React from 'react'
+import { Link, graphql, useStaticQuery } from 'gatsby'
+
+import Layout from '../components/layout'
+import Head from '../components/head'
+import * as styles from './blog.module.scss'
+
+const BlogPage = () => {
+  const data = useStaticQuery(graphql`
+    query {
+      allContentfulBlogPost (
+        sort: {
+          fields: publishedDate,
+          order: DESC
+        }
+      ) {
+        edges {
+          node {
+            title
+            slug
+            publishedDate(formatString: "MMMM Do, YYYY")
+          }
+        }
+      }
+    }
+  `)
+
+  const li = data.allContentfulBlogPost.edges.map((item, k) => {
+    return (
+      <li className={styles.post} key={k}>
+        <h2><Link to={item.node.slug}>{item.node.title}</Link></h2>
+        <p>{item.node.publishedDate}</p>
+      </li>
+    )
+  })
+
+  return (
+    <Layout>
+      <Head title="Blog" />
+      <h1>Blog</h1>
+
+      <ol className={styles.posts}>
+        {li}
+      </ol>
+
+    </Layout>
+  )
+}
+
+export default BlogPage
 ```
