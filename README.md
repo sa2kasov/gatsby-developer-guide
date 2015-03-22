@@ -44,6 +44,7 @@
   5. [Добавление изображений к постам](#Добавление-изображений-к-постам)
 11. [Gatsby + Contentful](#Gatsby-+-Contentful)
   1. [Установка и настройка окружения. Плагин gatsby-source-contentful](#Установка-и-настройка-окружения.-Плагин-gatsby-source-contentful)
+  2. [Запрос данных из источника Contentful](#Запрос-данных-из-источника-Contentful)
 
 
 ## Что такое Gatsby.js
@@ -1008,5 +1009,30 @@ module.exports = {
     },
     `gatsby-plugin-image`,
   ],
+}
+```
+
+### Запрос данных из источника Contentful
+
+После перезапуска сборки в слое данных GraphQL появятся новые запросы для Contentful. Если название модели контента вы дали, например `BlogPost`, то названия запросов для данного типа контента будут соответственно `contentfulBlogPost` – для запроса данных одного отдельного поста и `allContentfulBlogPost` – для получения списка постов.
+
+Пример запроса на извлечения списка публикаций из CMS Contentful:
+
+```graphql
+query {
+  allContentfulBlogPost (
+    sort: {
+      fields: publishedDate,
+      order: DESC
+    }
+  ) {
+    edges {
+      node {
+        title
+        slug
+        publishedDate(formatString: "MMMM Do, YYYY")
+      }
+    }
+  }
 }
 ```
