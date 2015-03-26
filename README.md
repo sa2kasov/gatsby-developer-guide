@@ -46,6 +46,7 @@
   1. [Установка и настройка окружения. Плагин gatsby-source-contentful](#Установка-и-настройка-окружения.-Плагин-gatsby-source-contentful)
   2. [Запрос данных из источника Contentful](#Запрос-данных-из-источника-Contentful)
   3. [Вывод списка постов. Запрос allContentfulBlogPost](#Вывод-списка-постов.-Запрос-allContentfulBlogPost)
+  4. [Рендеринг публикации на странице. Запрос contentfulBlogPost](#Рендеринг-публикации-на-странице.-Запрос-contentfulBlogPost)
 
 
 ## Что такое Gatsby.js
@@ -1112,3 +1113,108 @@ const BlogPage = () => {
 
 export default BlogPage
 ```
+
+### Рендеринг публикации на странице. Запрос contentfulBlogPost
+
+В этом разделе нам предстоит разобрать как динамически создавать страницы Gatsby на основе данных Contentful из ссылок, которые ведут со страницы `/src/pages/blog.js`.
+
+В реализации этой задачи нам понадобится задействовать API `createPages` в файле `gatsby-node.js`. Поскольку ссылки на страницы генерируются самим Contentful, то здесь нам не понадобится API `onCreateNode`, как это было необходимо в работе с источником данных из файловой системы.
+
+Чтобы получить список из `slug` наших публикаций воспользуемся GraphQL запросом `allContentfulBlogPost`.
+
+`gatsby-node.js`
+
+```js
+const path = require('path')
+
+module.exports.createPages = async ({ actions, graphql }) => {
+  const { createPage } = actions
+  const blogTemplate = path.resolve('./src/templates/blog.js')
+
+  const response = await graphql(`
+    query {
+      allContentfulBlogPost {
+        edges {
+          node {
+            slug
+          }
+        }
+      }
+    }
+  `)
+
+  response.data.allContentfulBlogPost.edges.forEach((edge) => {
+    createPage({
+      component: blogTemplate,
+      path: `/blog/${edge.node.slug}`,
+      context: {
+        slug: edge.node.slug
+      }
+    })
+  })
+}
+```
+
+В файле `/src/templates/blog.js` отвечающий за вывод публикации сформируем GraphQL запрос используя `contentfulBlogPost`. В качестве аргумента запрос будет принимать параметр `slug`, для выборки конкретного поста.
+
+Вывод таких простых полей как заголовок и дата публикации не вызывает вопросов, но что касается текста публикации `body`, то это более сложная структура, которая потребует обработки библиотекой `@contentful/rich-text-react-renderer`. Данный NPM-пакет предоставляет единственную функцию `documentToReactComponents()`, которая преобразует JSON-формат текста публикации на набор React компонентов, готовые для отображения в любом месте страницы.
+
+```js
+import React from 'react'
+import { graphql } from 'gatsby'
+import { GatsbyImage } from 'gatsby-plugin-image'
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer"
+import { BLOCKS } from "@contentful/rich-text-types"
+
+import Layout from '../components/layout'
+import Head from '../components/head'
+
+export const query = graphql`
+  query($slug: String!) {
+    contentfulBlogPost(slug: {eq: $slug}) {
+      title
+      publishedDate(formatString: "MMMM Do, YYYY")
+      body {
+        raw
+        references {
+          contentful_id
+          title
+          description
+          gatsbyImageData(formats: [WEBP, AUTO])
+        }
+      }
+    }
+  }
+`
+
+const Blog = ({ data }) => {
+  const options = {
+    renderNode: {
+      [BLOCKS.EMBEDDED_ASSET]: node => {
+        const img = data.contentfulBlogPost.body.references.find(
+          el => el.contentful_id === node.data.target.sys.id)
+        return (
+          <GatsbyImage
+            image={img.gatsbyImageData}
+            title={img.title}
+            alt={img.description}
+          />
+        )
+      }
+    }
+  }
+
+  return (
+    <Layout>
+      <Head title={data.contentfulBlogPost.title}/>
+      <h1>{data.contentfulBlogPost.title}</h1>
+      <p>{data.contentfulBlogPost.publishedDate}</p>
+      {documentToReactComponents(JSON.parse(data.contentfulBlogPost.body.raw), options)}
+    </Layout>
+  )
+}
+
+export default Blog
+```
+
+Для того чтобы отобразить картинки, нужно указать необязательный второй параметр `options` для функции `documentToReactComponents()`, в котором передать настройки отображения для встраиваемых данных, в нашем случае для изображений.
