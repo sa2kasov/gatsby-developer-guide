@@ -48,6 +48,7 @@
   3. [Вывод списка постов. Запрос allContentfulBlogPost](#Вывод-списка-постов.-Запрос-allContentfulBlogPost)
   4. [Рендеринг публикации на странице. Запрос contentfulBlogPost](#Рендеринг-публикации-на-странице.-Запрос-contentfulBlogPost)
   5. [Страница 404](#Страница-404)
+  6. [Настройка метаданных сайта. React Helmet](#Настройка-метаданных-сайта.-React-Helmet)
 
 
 ## Что такое Gatsby.js
@@ -1249,3 +1250,74 @@ export default NotFound
 ```
 
 В _production_ версии сборки сайта, если пользователь зайдёт на страницу, которая не была найдена, ему немедленно отобразится данный шаблон `404.js`.
+
+### Настройка метаданных сайта. React Helmet
+
+_React Helmet_ – многоразовый, универсальный ~~«шлем»~~ React компонент для управления метаданными, что содержатся в секции `<head>`.
+
+**Установка и настройка**
+
+```shell
+npm install gatsby-plugin-react-helmet react-helmet
+```
+
+В файле `gatsby-config.js` достаточно объявить использование плагина без дополнительных настроек `options`.
+
+```js
+module.exports = {
+  // ...
+  plugins: [
+    'gatsby-plugin-react-helmet',
+    // ...
+  ]
+}
+```
+
+**Использование**
+
+Создадим динамический заголовок `<title>` для страниц сайта в формате `Заголовок страницы | Название сайта`. Чтобы не дублировать GraphQL-запрос для выборки нужных данных, создадим компонент `/src/components/head.js` в котором один раз реализуем необходимую логику.
+
+```js
+import React from 'react'
+import { Helmet } from 'react-helmet'
+import { useStaticQuery, graphql } from 'gatsby'
+
+const Head = ({ title }) => {
+  const data = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          title
+        }
+      }
+    }
+  `)
+
+  return <Helmet title={`${title} | ${title && data.site.siteMetadata.title}`} />
+}
+
+export default Head
+```
+
+`Заголовок страницы` будет передаваться как свойство от родительского компонента.
+
+Вызов компонента `Head` на примере главной страницы в `/src/pages/index.js`.
+
+```js
+import React from 'react'
+
+import Layout from '../components/layout'
+import Head from '../components/head'
+
+const IndexPage = () => {
+  return (
+    <Layout>
+      <Head title="Home" />
+      <h1>Hello, World!</h1>
+      <h3>Welcome to The Great Gatsby Website</h3>
+    </Layout>
+  )
+}
+
+export default IndexPage
+```
